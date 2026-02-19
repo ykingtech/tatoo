@@ -1,220 +1,743 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="si">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TattooTones - Kurunegala</title>
+    <title>MCing Course Grading System - Pro</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@300;400;600&family=Open+Sans:wght@400;600&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        'tone-black': '#0a0a0a',
-                        'tone-dark': '#121212',
-                        'tone-gray': '#2a2a2a',
-                        'tone-accent': '#e50914', /* පොඩි රතු පාට ටච් එකක් */
-                        'tone-gold': '#d4af37'
-                    },
-                    fontFamily: {
-                        'head': ['"Oswald"', 'sans-serif'],
-                        'body': ['"Open Sans"', 'sans-serif'],
-                    }
-                }
-            }
-        }
-    </script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        .hero-section {
-            /* Medusa Tattoo Image as Background */
-            background-image: linear-gradient(to bottom, rgba(0,0,0,0.7), rgba(0,0,0,0.9)), url('image_e60308.jpg'); 
-            background-size: cover;
-            background-position: center;
-        }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f8fafc; }
+        .glass-panel { background: rgba(255, 255, 255, 1); box-shadow: 0 10px 40px -10px rgba(0,0,0,0.08); border: 1px solid #f1f5f9; }
+        /* Loader */
+        .loader { border: 3px solid #f3f3f3; border-top: 3px solid #3b82f6; border-radius: 50%; width: 24px; height: 24px; animation: spin 1s linear infinite; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
         /* Custom Scrollbar */
-        ::-webkit-scrollbar {
-            width: 8px;
-        }
-        ::-webkit-scrollbar-track {
-            background: #121212;
-        }
-        ::-webkit-scrollbar-thumb {
-            background: #333; 
-            border-radius: 4px;
-        }
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: #f1f5f9; border-radius: 10px; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+        
+        /* Modal Animation */
+        .modal-enter { opacity: 0; transform: scale(0.95); }
+        .modal-enter-active { opacity: 1; transform: scale(1); transition: opacity 300ms, transform 300ms cubic-bezier(0.18, 0.89, 0.32, 1.28); }
     </style>
 </head>
-<body class="bg-tone-black text-gray-300 font-body">
+<body class="text-slate-800 h-screen overflow-hidden">
 
-    <nav class="fixed w-full z-50 bg-tone-black/95 border-b border-gray-800 backdrop-blur-md">
-        <div class="container mx-auto px-6 py-4 flex justify-between items-center">
-            <a href="#" class="text-2xl font-head font-bold text-white tracking-widest uppercase">
-                Tattoo<span class="text-tone-accent">Tones</span>
-            </a>
+    <!-- Screen 1: Instructor Login -->
+    <div id="loginScreen" class="absolute inset-0 z-50 bg-slate-50 flex items-center justify-center p-4 transition-all duration-500">
+        <div class="glass-panel p-10 rounded-3xl max-w-md w-full text-center">
+            <div class="bg-blue-50 w-20 h-20 rounded-2xl flex items-center justify-center mx-auto mb-6 transform rotate-3">
+                <i class="fa-solid fa-chalkboard-user text-4xl text-blue-600 transform -rotate-3"></i>
+            </div>
+            <h1 class="text-2xl font-extrabold mb-2 text-slate-800 tracking-tight">පාඨමාලා ඇගයීම</h1>
+            <p class="text-slate-500 mb-8 text-sm">කරුණාකර පද්ධතියට පිවිසීම සඳහා ඔබගේ නම ඇතුළත් කරන්න.</p>
             
-            <div class="hidden md:flex space-x-8 text-sm font-semibold uppercase tracking-wider">
-                <a href="#home" class="hover:text-tone-accent transition">Home</a>
-                <a href="#artist" class="hover:text-tone-accent transition">The Artist</a>
-                <a href="#gallery" class="hover:text-tone-accent transition">Gallery</a>
-                <a href="#contact" class="hover:text-tone-accent transition">Contact</a>
-            </div>
+            <div id="authLoader" class="hidden flex justify-center mb-4"><div class="loader"></div></div>
 
-            <a href="tel:0740199419" class="bg-white text-black px-5 py-2 rounded-sm font-bold font-head hover:bg-tone-accent hover:text-white transition uppercase text-sm">
-                Book Now
-            </a>
+            <input type="text" id="instructorNameInput" class="w-full p-4 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white font-bold text-center mb-6 transition-all" placeholder="උපදේශකගේ නම (Instructor)">
+            <button onclick="startSession()" class="w-full bg-blue-600 text-white font-bold py-4 rounded-xl hover:bg-blue-700 shadow-lg shadow-blue-600/20 transition-all flex items-center justify-center gap-2">
+                පද්ධතියට පිවිසෙන්න <i class="fa-solid fa-arrow-right"></i>
+            </button>
         </div>
-    </nav>
+    </div>
 
-    <section id="home" class="hero-section h-screen flex items-center justify-center px-6 relative">
-        <div class="text-center max-w-3xl z-10">
-            <p class="text-tone-accent font-bold tracking-[0.2em] uppercase mb-4 animate-pulse">Welcome to Kurunegala's Finest</p>
-            <h1 class="text-5xl md:text-7xl font-head font-bold text-white mb-6 uppercase leading-tight">
-                Turn Your Body <br> Into <span class="text-transparent bg-clip-text bg-gradient-to-r from-gray-200 to-gray-500">Masterpiece</span>
-            </h1>
-            <p class="text-lg md:text-xl text-gray-400 mb-10 max-w-2xl mx-auto">
-                Specializing in Realism, Fine Line, and Custom Designs. Where art meets skin.
-            </p>
-            <div class="flex flex-col md:flex-row gap-4 justify-center">
-                <a href="https://wa.me/94740199419" class="px-8 py-4 bg-tone-accent text-white font-bold rounded hover:bg-red-700 transition uppercase font-head">
-                    <i class="fab fa-whatsapp mr-2"></i> WhatsApp Us
-                </a>
-                <a href="#gallery" class="px-8 py-4 border border-gray-500 text-white font-bold rounded hover:border-white hover:bg-white hover:text-black transition uppercase font-head">
-                    View Portfolio
-                </a>
-            </div>
-        </div>
-    </section>
-
-    <section id="artist" class="py-20 bg-tone-dark">
-        <div class="container mx-auto px-6">
-            <div class="flex flex-col md:flex-row items-center gap-12">
-                <div class="md:w-1/2 relative">
-                    <div class="absolute -top-4 -left-4 w-24 h-24 border-t-4 border-l-4 border-tone-accent"></div>
-                    <img src="image_e602b3.jpg" alt="Tattoo Artist" class="w-full rounded shadow-2xl grayscale hover:grayscale-0 transition duration-500">
-                    <div class="absolute -bottom-4 -right-4 w-24 h-24 border-b-4 border-r-4 border-tone-accent"></div>
+    <!-- Screen 2: Main Dashboard -->
+    <div id="mainDashboard" class="hidden h-screen flex flex-col md:flex-row gap-4 p-4 max-w-[1600px] mx-auto bg-slate-50">
+        
+        <!-- Sidebar: Student List -->
+        <div class="w-full md:w-80 glass-panel rounded-2xl flex flex-col h-full shrink-0 overflow-hidden">
+            <div class="p-5 bg-white border-b border-slate-100 flex justify-between items-center z-10">
+                <div>
+                    <h2 class="font-extrabold text-lg text-slate-800">සිසුන්ගේ ලැයිස්තුව</h2>
+                    <p class="text-xs text-slate-500 font-medium mt-0.5"><i class="fa-solid fa-user-check text-blue-500 mr-1"></i> <span id="displayInstructor"></span></p>
                 </div>
-                
-                <div class="md:w-1/2">
-                    <h2 class="text-4xl font-head font-bold text-white mb-6 uppercase">Meet the Artist</h2>
-                    <p class="mb-6 leading-relaxed">
-                        At <span class="text-white font-bold">TattooTones</span>, we believe every tattoo tells a story. Located in the heart of Kurunegala, we provide a safe, sterile, and creative environment for your next ink.
-                    </p>
-                    <p class="mb-8 leading-relaxed">
-                        Whether you are looking for a detailed Greek mythology piece or a minimal fine-line design, our expertise ensures that you walk out with a piece of art you'll cherish forever.
-                    </p>
-                    
-                    <div class="grid grid-cols-2 gap-4">
-                        <div class="bg-tone-gray p-4 border-l-4 border-tone-accent">
-                            <h3 class="text-white font-bold font-head text-xl">Realism</h3>
-                            <p class="text-sm">High detail portraits & figures</p>
-                        </div>
-                        <div class="bg-tone-gray p-4 border-l-4 border-tone-accent">
-                            <h3 class="text-white font-bold font-head text-xl">Fine Line</h3>
-                            <p class="text-sm">Minimal & clean designs</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <section id="gallery" class="py-20 bg-tone-black">
-        <div class="container mx-auto px-6">
-            <div class="text-center mb-16">
-                <span class="text-tone-accent font-bold uppercase tracking-wider">Our Work</span>
-                <h2 class="text-4xl font-head font-bold text-white mt-2 uppercase">Recent Masterpieces</h2>
-            </div>
-
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <div class="group relative overflow-hidden rounded-lg">
-                    <img src="image_e60308.jpg" alt="Medusa Tattoo" class="w-full h-96 object-cover transform group-hover:scale-110 transition duration-500">
-                    <div class="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition flex items-center justify-center">
-                        <h3 class="text-white font-head text-2xl uppercase border-b-2 border-tone-accent pb-1">Greek Mythology</h3>
-                    </div>
-                </div>
-
-                <div class="group relative overflow-hidden rounded-lg">
-                    <img src="image_e60614.png" alt="Fine Line Tattoo" class="w-full h-96 object-cover transform group-hover:scale-110 transition duration-500">
-                    <div class="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition flex items-center justify-center">
-                        <h3 class="text-white font-head text-2xl uppercase border-b-2 border-tone-accent pb-1">Abstract Line Art</h3>
-                    </div>
-                </div>
-
-                <div class="group relative overflow-hidden rounded-lg">
-                    <img src="https://images.unsplash.com/photo-1611501275019-9b5cda994e8d?q=80&w=600&auto=format&fit=crop" alt="More Tattoos" class="w-full h-96 object-cover transform group-hover:scale-110 transition duration-500">
-                    <div class="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition flex items-center justify-center">
-                        <h3 class="text-white font-head text-2xl uppercase border-b-2 border-tone-accent pb-1">Custom Design</h3>
-                    </div>
-                </div>
+                <button onclick="createNewStudent()" class="bg-blue-50 text-blue-600 hover:bg-blue-600 hover:text-white w-9 h-9 rounded-xl flex items-center justify-center transition-all" title="නව සිසුවෙකු">
+                    <i class="fa-solid fa-plus"></i>
+                </button>
             </div>
             
-            <div class="text-center mt-12">
-                <a href="#" class="text-gray-400 hover:text-white border-b border-gray-600 hover:border-white pb-1 transition">See More on Instagram</a>
+            <div class="p-3 bg-slate-50 border-b border-slate-100">
+                <div class="relative">
+                    <i class="fa-solid fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 text-sm"></i>
+                    <input type="text" id="searchInput" onkeyup="filterStudents()" class="w-full pl-9 pr-4 py-2 text-sm bg-white border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-100 focus:border-blue-400 focus:outline-none transition-all shadow-sm" placeholder="නම හෝ Index...">
+                </div>
+            </div>
+
+            <div class="flex-1 overflow-y-auto p-3 bg-slate-50/50" id="studentListContainer">
+                <div class="text-center text-slate-400 mt-10" id="loadingState">
+                    <div class="loader mx-auto mb-3"></div>
+                    <span id="listStatusText" class="text-xs font-semibold">දත්ත පූරණය වෙමින් පවතී...</span>
+                </div>
+                <ul id="studentsList" class="space-y-2"></ul>
             </div>
         </div>
-    </section>
 
-    <section id="contact" class="py-20 bg-tone-dark">
-        <div class="container mx-auto px-6">
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-0 shadow-2xl rounded-xl overflow-hidden">
+        <!-- Main Content: Data Entry Form -->
+        <div class="w-full md:flex-1 flex flex-col h-full">
+            <div class="glass-panel rounded-2xl flex-1 flex flex-col overflow-hidden relative">
                 
-                <div class="bg-tone-gray p-10 flex flex-col justify-center">
-                    <h2 class="text-3xl font-head font-bold text-white mb-8 uppercase">Get Inked</h2>
-                    
-                    <div class="space-y-6">
-                        <div class="flex items-center gap-4">
-                            <div class="w-10 h-10 bg-tone-black rounded flex items-center justify-center text-tone-accent">
-                                <i class="fas fa-map-marker-alt"></i>
-                            </div>
-                            <div>
-                                <h4 class="text-white font-bold">Address</h4>
-                                <p class="text-gray-400">No17, Suriyawatta, Kurunegala</p>
-                            </div>
-                        </div>
+                <!-- Header -->
+                <div class="p-4 md:p-5 border-b border-slate-100 flex justify-between items-center bg-white z-10 shrink-0">
+                    <h2 class="font-extrabold text-xl text-slate-800 flex items-center gap-2">
+                        <span class="bg-blue-50 text-blue-600 w-8 h-8 rounded-lg flex items-center justify-center"><i class="fa-solid fa-pen-to-square text-sm"></i></span>
+                        ලකුණු ඇතුළත් කිරීම
+                    </h2>
+                    <div id="saveStatus" class="text-xs font-bold text-slate-400 flex items-center bg-slate-50 px-3 py-1.5 rounded-lg border border-slate-100">
+                        <i class="fa-solid fa-cloud text-slate-300 mr-2"></i> Cloud Ready
+                    </div>
+                </div>
 
-                        <div class="flex items-center gap-4">
-                            <div class="w-10 h-10 bg-tone-black rounded flex items-center justify-center text-tone-accent">
-                                <i class="fas fa-phone"></i>
-                            </div>
-                            <div>
-                                <h4 class="text-white font-bold">Phone / WhatsApp</h4>
-                                <p class="text-gray-400">074 019 9419</p>
-                            </div>
+                <!-- Form Area -->
+                <div class="overflow-y-auto flex-1 p-4 md:p-6 bg-slate-50/50">
+                    <!-- Student Info -->
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6 bg-white p-4 rounded-2xl border border-slate-100 shadow-sm">
+                        <div>
+                            <label class="block text-[11px] font-bold text-slate-500 mb-1.5 uppercase tracking-wider">Index No <span class="text-red-500">*</span></label>
+                            <input type="text" id="stuIndex" oninput="handleStudentInfoChange()" class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:border-blue-400 focus:bg-white focus:ring-2 focus:ring-blue-50 focus:outline-none font-black text-slate-700 uppercase transition-all" placeholder="IDX-001">
                         </div>
+                        <div>
+                            <label class="block text-[11px] font-bold text-slate-500 mb-1.5 uppercase tracking-wider">Name</label>
+                            <input type="text" id="stuName" oninput="handleStudentInfoChange()" class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:border-blue-400 focus:bg-white focus:ring-2 focus:ring-blue-50 focus:outline-none font-medium text-slate-700 transition-all" placeholder="සිසුවාගේ නම">
+                        </div>
+                        <div>
+                            <label class="block text-[11px] font-bold text-slate-500 mb-1.5 uppercase tracking-wider">Class</label>
+                            <input type="text" id="stuClass" oninput="handleStudentInfoChange()" class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:border-blue-400 focus:bg-white focus:ring-2 focus:ring-blue-50 focus:outline-none font-medium text-slate-700 transition-all" placeholder="Batch 05">
+                        </div>
+                    </div>
 
-                        <div class="flex items-center gap-4">
-                            <div class="w-10 h-10 bg-tone-black rounded flex items-center justify-center text-tone-accent">
-                                <i class="fas fa-clock"></i>
-                            </div>
-                            <div>
-                                <h4 class="text-white font-bold">Opening Hours</h4>
-                                <p class="text-gray-400">Daily: 9:00 AM - 8:00 PM</p>
-                            </div>
+                    <!-- Marks Table -->
+                    <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left border-collapse">
+                                <thead>
+                                    <tr class="bg-slate-50 border-b border-slate-200 text-[10px] uppercase tracking-wider text-slate-500 font-bold">
+                                        <th class="p-3 border-r border-slate-100">Module</th>
+                                        <th class="p-3 border-r border-slate-100 min-w-[200px]">Sub Topic</th>
+                                        <th class="p-2 text-center text-slate-400">D1 Max</th>
+                                        <th class="p-2 text-center border-r border-slate-100 bg-blue-50/50 text-blue-600 w-20">D1 Score</th>
+                                        <th class="p-2 text-center text-slate-400">D2 Max</th>
+                                        <th class="p-2 text-center border-r border-slate-100 bg-blue-50/50 text-blue-600 w-20">D2 Score</th>
+                                        <th class="p-2 text-center text-slate-400">Fin Max</th>
+                                        <th class="p-2 text-center bg-blue-50/50 text-blue-600 w-20">Fin Score</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="gradingTableBody" class="text-sm">
+                                    <!-- JS Generates this -->
+                                </tbody>
+                            </table>
                         </div>
                     </div>
                 </div>
 
-                <div class="h-80 md:h-auto w-full bg-gray-800 relative">
-                     <iframe 
-                         src="https://www.google.com/maps/embed?pb=!1m14!1m8!1m3!1d15822.551725151941!2d80.3519366!3d7.5051626!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3ae331f5d686bcd1%3A0x6465d8b5a084cf22!2sTattooTones!5e0!3m2!1sen!2slk!4v1768244961644!5m2!1sen!2slk" width="600" height="450" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"
-                        width="100%" 
-                        height="100%" 
-                        style="border:0;" 
-                        allowfullscreen="" 
-                        loading="lazy" 
-                        class="grayscale hover:grayscale-0 transition duration-700">
-                    </iframe>
+                <!-- Bottom Bar -->
+                <div class="bg-white border-t border-slate-100 p-4 flex flex-wrap justify-between items-center z-10 shrink-0">
+                    <div class="flex items-center gap-6">
+                        <div class="flex flex-col">
+                            <span class="text-[10px] text-slate-400 font-bold uppercase tracking-wider mb-0.5">ඔබේ ලකුණු (My Total)</span>
+                            <div class="flex items-baseline gap-1">
+                                <span class="text-2xl font-black text-slate-700" id="myTotal">0.00</span> 
+                                <span class="text-slate-400 font-medium text-sm">/ 30</span>
+                            </div>
+                        </div>
+                        <div class="h-8 w-px bg-slate-200 hidden sm:block"></div>
+                        <div class="hidden sm:flex flex-col">
+                            <span class="text-[10px] text-slate-400 font-bold uppercase tracking-wider mb-0.5">මුළු ලකුණු (Grand Total)</span>
+                            <div class="flex items-center gap-2">
+                                <span class="text-xl font-bold text-blue-600" id="grandTotalDisplay">0.00</span>
+                                <div id="liveGrade" class="text-[10px] font-bold px-2 py-0.5 rounded uppercase tracking-wide hidden border"></div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="flex gap-2 w-full sm:w-auto mt-4 sm:mt-0">
+                        <button onclick="deleteCurrentStudent()" class="flex-1 sm:flex-none text-red-500 bg-white border border-red-200 hover:bg-red-50 px-4 py-2 rounded-xl font-bold transition-all text-sm flex items-center justify-center gap-2 shadow-sm" id="deleteBtn" style="display:none;">
+                            <i class="fa-solid fa-trash-can"></i> මකන්න
+                        </button>
+                        <!-- NEW IN-SYSTEM REPORT BUTTON -->
+                        <button onclick="viewSystemReport()" class="flex-1 sm:flex-none bg-slate-800 text-white hover:bg-slate-900 px-5 py-2 rounded-xl font-bold transition-all text-sm flex items-center justify-center gap-2 shadow-md hover:shadow-lg">
+                            <i class="fa-solid fa-chart-simple text-blue-400"></i> සම්පූර්ණ වාර්තාව
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>
-    </section>
+    </div>
 
-    <footer class="bg-black py-8 border-t border-gray-900 text-center">
-        <p class="text-gray-600 text-sm">© 2024 TattooTones Kurunegala. All Rights Reserved.</p>
-    </footer>
+    <!-- IN-SYSTEM REPORT MODAL (BEAUTIFUL DASHBOARD) -->
+    <div id="reportModal" class="fixed inset-0 z-[100] bg-slate-900/40 backdrop-blur-sm flex items-center justify-center p-4 hidden">
+        <!-- Modal Content Container -->
+        <div id="reportModalContent" class="bg-slate-50 w-full max-w-5xl h-[90vh] rounded-3xl shadow-2xl flex flex-col overflow-hidden border border-slate-200 modal-enter">
+            
+            <!-- Modal Header -->
+            <div class="bg-white px-6 py-4 border-b border-slate-200 flex justify-between items-center shrink-0">
+                <div class="flex items-center gap-3">
+                    <div class="bg-blue-600 text-white w-10 h-10 rounded-xl flex items-center justify-center shadow-inner">
+                        <i class="fa-solid fa-award text-xl"></i>
+                    </div>
+                    <div>
+                        <h2 class="text-lg font-black text-slate-800 tracking-tight leading-tight">Student Evaluation Report</h2>
+                        <p class="text-xs text-slate-500 font-medium">MCing Course Final Assessment</p>
+                    </div>
+                </div>
+                <button onclick="closeReport()" class="text-slate-400 hover:text-red-500 bg-slate-100 hover:bg-red-50 w-8 h-8 rounded-full flex items-center justify-center transition-all">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
 
+            <!-- Modal Scrollable Body -->
+            <div class="flex-1 overflow-y-auto p-6 md:p-8">
+                
+                <!-- Top Section: Student Info & Final Grade -->
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
+                    <!-- Student Info Card -->
+                    <div class="col-span-1 lg:col-span-2 bg-white rounded-2xl p-6 border border-slate-200 shadow-sm relative overflow-hidden">
+                        <i class="fa-solid fa-graduation-cap absolute -right-4 -bottom-4 text-[120px] text-slate-50 rotate-[-15deg] pointer-events-none"></i>
+                        <div class="relative z-10">
+                            <div class="inline-block px-3 py-1 bg-slate-100 text-slate-600 font-bold text-[10px] rounded-lg mb-3 tracking-widest uppercase border border-slate-200">
+                                INDEX: <span id="repIndex" class="text-blue-600"></span>
+                            </div>
+                            <h3 id="repName" class="text-3xl font-black text-slate-800 mb-2 truncate"></h3>
+                            <div class="flex items-center gap-4 mt-4">
+                                <div class="flex items-center gap-1.5 text-sm text-slate-600 font-medium bg-slate-50 px-3 py-1.5 rounded-lg border border-slate-100">
+                                    <i class="fa-solid fa-chalkboard-user text-blue-500"></i> Class: <span id="repClass"></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Grand Total Card -->
+                    <div id="repGradeBg" class="col-span-1 rounded-2xl p-6 shadow-sm flex flex-col items-center justify-center text-center relative overflow-hidden border">
+                        <p class="text-[11px] font-bold uppercase tracking-widest mb-1 opacity-80">Grand Total</p>
+                        <div class="text-5xl font-black mb-3">
+                            <span id="repTotal"></span><span class="text-xl opacity-60 font-semibold">/30</span>
+                        </div>
+                        <div id="repGrade" class="px-4 py-1 rounded-lg font-black text-sm tracking-widest uppercase bg-white/30 backdrop-blur-sm border border-white/40 shadow-sm"></div>
+                    </div>
+                </div>
+
+                <!-- Bottom Section: Detailed Breakdown -->
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    
+                    <!-- Left: Marks Table -->
+                    <div class="col-span-1 lg:col-span-2 bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden flex flex-col">
+                        <div class="px-5 py-4 border-b border-slate-100 flex items-center gap-2 bg-slate-50/50">
+                            <i class="fa-solid fa-list-check text-blue-500"></i>
+                            <h4 class="font-bold text-slate-700 text-sm uppercase tracking-wide">Module Breakdown</h4>
+                        </div>
+                        <div class="overflow-x-auto p-1">
+                            <table class="w-full text-sm text-left">
+                                <thead>
+                                    <tr class="text-[10px] text-slate-400 uppercase tracking-wider border-b border-slate-100">
+                                        <th class="p-3 font-bold">Module</th>
+                                        <th class="p-3 font-bold">Sub Topic</th>
+                                        <th class="p-3 font-bold text-center">Score</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="repTableBody" class="divide-y divide-slate-50 text-slate-600">
+                                    <!-- JS Generates Rows -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- Right: Evaluators & Legend -->
+                    <div class="col-span-1 flex flex-col gap-6">
+                        
+                        <!-- Evaluators List -->
+                        <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-5">
+                            <h4 class="font-bold text-slate-700 text-sm uppercase tracking-wide mb-4 flex items-center gap-2">
+                                <i class="fa-solid fa-users-viewfinder text-indigo-500"></i> Evaluator Contributions
+                            </h4>
+                            <div id="repInstructors" class="space-y-2">
+                                <!-- JS Generates Instructors -->
+                            </div>
+                        </div>
+
+                        <!-- Info/Legend -->
+                        <div class="bg-slate-800 rounded-2xl p-5 shadow-inner">
+                            <h4 class="font-bold text-slate-300 text-[10px] uppercase tracking-widest mb-3 border-b border-slate-700 pb-2">Grading Scale</h4>
+                            <div class="space-y-2.5 text-xs font-medium">
+                                <div class="flex justify-between items-center text-emerald-400"><span class="flex items-center gap-2"><i class="fa-solid fa-star text-[10px]"></i> 24 – 30</span> <span class="bg-emerald-400/20 px-2 py-0.5 rounded text-emerald-300">Distinction</span></div>
+                                <div class="flex justify-between items-center text-blue-400"><span class="flex items-center gap-2"><i class="fa-solid fa-award text-[10px]"></i> 18 – 23</span> <span class="bg-blue-400/20 px-2 py-0.5 rounded text-blue-300">Merit</span></div>
+                                <div class="flex justify-between items-center text-yellow-400"><span class="flex items-center gap-2"><i class="fa-solid fa-thumbs-up text-[10px]"></i> 15 – 17</span> <span class="bg-yellow-400/20 px-2 py-0.5 rounded text-yellow-300">Pass</span></div>
+                                <div class="flex justify-between items-center text-slate-400"><span class="flex items-center gap-2"><i class="fa-solid fa-handshake text-[10px]"></i> 00 – 14</span> <span class="bg-slate-700 px-2 py-0.5 rounded text-slate-300">Participation</span></div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Firebase SDK (Module) -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, collection, doc, setDoc, onSnapshot, deleteDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        // --- Firebase Config ---
+        const userProvidedConfig = {
+            apiKey: "AIzaSyDSSaxr8bD52mSY-VqYKCYiUb7yBy6zS7k",
+            authDomain: "enter-3ffe5.firebaseapp.com",
+            projectId: "enter-3ffe5",
+            storageBucket: "enter-3ffe5.firebasestorage.app",
+            messagingSenderId: "778223095637",
+            appId: "1:778223095637:web:7d5cd6148c4481fbe369dc",
+            measurementId: "G-H94PJ3052F"
+        };
+        const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : userProvidedConfig;
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+        
+        const definedAppId = typeof __app_id !== 'undefined' ? __app_id : 'kixai-4teachers';
+        let currentUser = null;
+        let unsubscribeDb = null;
+
+        // --- Syllabus Data ---
+        window.syllabusData = [
+            { mod: "01 voice engineering & linguistic precision", modRowspan: 4, sub: "Vocal resonance and projection", d1: 1, d2: 1, fin: 0.5 },
+            { mod: "", modRowspan: 0, sub: "Articulation and diction", d1: 0.5, d2: 0.5, fin: 1 },
+            { mod: "", modRowspan: 0, sub: "Intonation and pacing", d1: 0.75, d2: 0.75, fin: 0.5 },
+            { mod: "", modRowspan: 0, sub: "The power of silence", d1: 0.25, d2: 0.25, fin: 0.5 },
+            { mod: "02 advanced performance & technical skills", modRowspan: 4, sub: "Platform presence", d1: 1, d2: 1, fin: 0.5 },
+            { mod: "", modRowspan: 0, sub: "Microphone technique", d1: 1, d2: 1, fin: 0.5 },
+            { mod: "", modRowspan: 0, sub: "The 3 pillars of MCing", d1: 0.75, d2: 0.75, fin: 1 },
+            { mod: "", modRowspan: 0, sub: "Ad-libbing & improvisation", d1: 0.75, d2: 0.75, fin: 1 },
+            { mod: "03 professional simulations & live drills", modRowspan: 4, sub: "Cold reading sessions", d1: 1, d2: 1, fin: 0 },
+            { mod: "", modRowspan: 0, sub: "Crowd engagement", d1: 0.75, d2: 0.75, fin: 1 },
+            { mod: "", modRowspan: 0, sub: "Crisis management", d1: 0.5, d2: 0.5, fin: 2 },
+            { mod: "", modRowspan: 0, sub: "Prformance evaluation", d1: 0.25, d2: 0.25, fin: 0.5 },
+            { mod: "04 branding ethics & psychology", modRowspan: 4, sub: "Presonl branding", d1: 0.25, d2: 0.25, fin: 0.5 },
+            { mod: "", modRowspan: 0, sub: "Audience psychology", d1: 0.25, d2: 0.25, fin: 0.5 },
+            { mod: "", modRowspan: 0, sub: "Professional ethics", d1: 0.25, d2: 0.25, fin: 0.5 },
+            { mod: "", modRowspan: 0, sub: "Global grooming", d1: 0, d2: 0, fin: 1 }
+        ];
+
+        window.instructorName = "";
+        window.currentStudentId = null;
+        window.allStudents = []; 
+        let saveTimeout = null;
+
+        // --- 1. Authentication ---
+        async function initSystem() {
+            document.getElementById('authLoader').classList.remove('hidden');
+            try {
+                if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
+                    await signInWithCustomToken(auth, __initial_auth_token);
+                } else {
+                    await signInAnonymously(auth);
+                }
+            } catch (error) {
+                console.error("Auth error:", error);
+                alert("Auth Error. කරුණාකර Firebase Authentication -> Anonymous සක්‍රීය කරන්න.");
+                document.getElementById('authLoader').classList.add('hidden');
+            }
+        }
+
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                currentUser = user;
+                document.getElementById('authLoader').classList.add('hidden');
+            }
+        });
+
+        window.startSession = () => {
+            const nameInput = document.getElementById('instructorNameInput').value.trim();
+            if(!nameInput) { alert("කරුණාකර ඔබගේ නම ඇතුළත් කරන්න!"); return; }
+            if(!currentUser) { alert("පද්ධතිය සූදානම් නැත."); return; }
+
+            window.instructorName = nameInput;
+            document.getElementById('displayInstructor').innerText = window.instructorName;
+            
+            document.getElementById('loginScreen').style.opacity = '0';
+            setTimeout(() => {
+                document.getElementById('loginScreen').style.display = 'none';
+                document.getElementById('mainDashboard').style.display = 'flex';
+                buildGradingTable();
+                startDatabaseListener();
+            }, 300);
+        };
+
+        // --- 2. Database Listeners (Public Read) ---
+        function startDatabaseListener() {
+            if(!currentUser) return;
+            const studentsRef = collection(db, 'artifacts', definedAppId, 'public', 'data', 'students');
+            
+            unsubscribeDb = onSnapshot(studentsRef, (snapshot) => {
+                window.allStudents = [];
+                snapshot.forEach((doc) => { window.allStudents.push({ id: doc.id, ...doc.data() }); });
+                window.allStudents.sort((a, b) => b.lastUpdated - a.lastUpdated);
+                
+                document.getElementById('loadingState').style.display = 'none';
+                renderStudentList();
+                
+                if(window.currentStudentId) calculateAndUpdateTotals();
+            }, (error) => {
+                console.error("Firestore Listen Error:", error);
+                document.getElementById('listStatusText').innerText = "දත්ත ලබා ගැනීමේ දෝෂයක්!";
+            });
+        }
+
+        // --- 3. UI Generation (Data Entry Table) ---
+        function buildGradingTable() {
+            const tbody = document.getElementById('gradingTableBody');
+            tbody.innerHTML = '';
+            
+            window.syllabusData.forEach((row, index) => {
+                const tr = document.createElement('tr');
+                tr.className = "border-b border-slate-100 hover:bg-blue-50/40 transition-colors";
+                
+                let modCell = '';
+                if(row.modRowspan > 0) {
+                    modCell = `<td rowspan="${row.modRowspan}" class="px-3 py-2 border-r border-slate-100 font-bold text-slate-500 bg-slate-50/50 align-top w-32 break-words text-[10px] tracking-widest leading-relaxed">${row.mod}</td>`;
+                }
+
+                tr.innerHTML = `
+                    ${modCell}
+                    <td class="px-3 py-2 border-r border-slate-100 text-slate-700 text-[12px] font-medium leading-tight">${row.sub}</td>
+                    
+                    <td class="px-1 py-2 text-center text-slate-400 text-[10px] bg-white border-r border-slate-100">${row.d1}</td>
+                    <td class="px-1 py-1 bg-blue-50/30 border-r border-slate-100">
+                        <input type="number" id="d1_${index}" min="0" max="${row.d1}" step="0.25" oninput="handleRealtimeInput(${index}, 'd1')" class="w-full p-1.5 text-center bg-transparent focus:bg-white rounded border border-transparent focus:border-blue-400 focus:outline-none text-[13px] font-black text-blue-700 transition-all" ${row.d1 === 0 ? 'disabled' : ''}>
+                    </td>
+                    
+                    <td class="px-1 py-2 text-center text-slate-400 text-[10px] bg-white border-r border-slate-100">${row.d2}</td>
+                    <td class="px-1 py-1 bg-blue-50/30 border-r border-slate-100">
+                        <input type="number" id="d2_${index}" min="0" max="${row.d2}" step="0.25" oninput="handleRealtimeInput(${index}, 'd2')" class="w-full p-1.5 text-center bg-transparent focus:bg-white rounded border border-transparent focus:border-blue-400 focus:outline-none text-[13px] font-black text-blue-700 transition-all" ${row.d2 === 0 ? 'disabled' : ''}>
+                    </td>
+                    
+                    <td class="px-1 py-2 text-center text-slate-400 text-[10px] bg-white border-r border-slate-100">${row.fin}</td>
+                    <td class="px-1 py-1 bg-blue-50/30">
+                        <input type="number" id="fin_${index}" min="0" max="${row.fin}" step="0.25" oninput="handleRealtimeInput(${index}, 'fin')" class="w-full p-1.5 text-center bg-transparent focus:bg-white rounded border border-transparent focus:border-blue-400 focus:outline-none text-[13px] font-black text-blue-700 transition-all" ${row.fin === 0 ? 'disabled' : ''}>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        // --- 4. Logic & Auto-Save ---
+        window.handleStudentInfoChange = () => { triggerAutoSave(); };
+
+        window.handleRealtimeInput = (index, field) => {
+            const row = window.syllabusData[index];
+            const inputEle = document.getElementById(`${field}_${index}`);
+            let val = parseFloat(inputEle.value);
+            
+            if(val > row[field]) { val = row[field]; inputEle.value = val; }
+            if(val < 0) { val = 0; inputEle.value = val; }
+
+            calculateAndUpdateTotals();
+            triggerAutoSave();
+        };
+
+        function calculateAndUpdateTotals() {
+            let myTotal = 0; let grandTotal = 0;
+            
+            window.syllabusData.forEach((row, index) => {
+                let v1 = parseFloat(document.getElementById(`d1_${index}`).value) || 0;
+                let v2 = parseFloat(document.getElementById(`d2_${index}`).value) || 0;
+                let v3 = parseFloat(document.getElementById(`fin_${index}`).value) || 0;
+                myTotal += (v1 + v2 + v3);
+            });
+            document.getElementById('myTotal').innerText = myTotal.toFixed(2);
+
+            const existingStudent = window.currentStudentId ? window.allStudents.find(s => s.id === window.currentStudentId) : null;
+            
+            window.syllabusData.forEach((row, index) => {
+                let cD1 = 0, cD2 = 0, cFin = 0;
+                if(existingStudent && existingStudent.gradings) {
+                    Object.keys(existingStudent.gradings).forEach(inst => {
+                        if(inst !== window.instructorName) {
+                            const mk = existingStudent.gradings[inst].marks[`sub_${index}`];
+                            if(mk) { cD1 += parseFloat(mk.d1)||0; cD2 += parseFloat(mk.d2)||0; cFin += parseFloat(mk.fin)||0; }
+                        }
+                    });
+                }
+                
+                cD1 += parseFloat(document.getElementById(`d1_${index}`).value) || 0;
+                cD2 += parseFloat(document.getElementById(`d2_${index}`).value) || 0;
+                cFin += parseFloat(document.getElementById(`fin_${index}`).value) || 0;
+                
+                if(cD1 > row.d1) cD1 = row.d1; if(cD2 > row.d2) cD2 = row.d2; if(cFin > row.fin) cFin = row.fin;
+                grandTotal += (cD1 + cD2 + cFin);
+            });
+
+            document.getElementById('grandTotalDisplay').innerText = grandTotal.toFixed(2);
+            
+            const gradeEl = document.getElementById('liveGrade');
+            gradeEl.classList.remove('hidden', 'text-emerald-600', 'border-emerald-200', 'bg-emerald-50', 'text-blue-600', 'border-blue-200', 'bg-blue-50', 'text-amber-600', 'border-amber-200', 'bg-amber-50', 'text-slate-500', 'border-slate-200', 'bg-slate-100');
+            
+            let gradeText = ""; let colorClass = ""; let bgClass = ""; let borderClass = "";
+
+            if(grandTotal >= 24) { gradeText = "Distinction"; colorClass = "text-emerald-600"; bgClass = "bg-emerald-50"; borderClass="border-emerald-200"; }
+            else if(grandTotal >= 18) { gradeText = "Merit"; colorClass = "text-blue-600"; bgClass = "bg-blue-50"; borderClass="border-blue-200"; }
+            else if(grandTotal >= 15) { gradeText = "Pass"; colorClass = "text-amber-600"; bgClass = "bg-amber-50"; borderClass="border-amber-200"; }
+            else { gradeText = "Participation"; colorClass = "text-slate-500"; bgClass = "bg-slate-100"; borderClass="border-slate-200"; }
+
+            gradeEl.innerText = gradeText;
+            gradeEl.classList.add(colorClass, bgClass, borderClass);
+            
+            return { myTotal: myTotal.toFixed(2), grandTotal: grandTotal.toFixed(2), grade: gradeText };
+        }
+
+        function triggerAutoSave() {
+            const indexNo = document.getElementById('stuIndex').value.trim();
+            if(!indexNo) { setStatus("Index Number!", "text-red-500", "fa-circle-exclamation"); return; }
+            setStatus("Saving...", "text-blue-500", "fa-arrows-rotate fa-spin");
+            clearTimeout(saveTimeout);
+            saveTimeout = setTimeout(async () => { await saveToFirestore(); }, 1000);
+        }
+
+        async function saveToFirestore() {
+            if(!currentUser) return;
+
+            const idx = document.getElementById('stuIndex').value.trim().toUpperCase();
+            const name = document.getElementById('stuName').value.trim();
+            const cls = document.getElementById('stuClass').value.trim();
+            
+            if(!window.currentStudentId) window.currentStudentId = `STU_${idx.replace(/[^a-zA-Z0-9]/g, '')}`; 
+
+            const totals = calculateAndUpdateTotals();
+            
+            let myMarksMap = {};
+            window.syllabusData.forEach((row, index) => {
+                myMarksMap[`sub_${index}`] = {
+                    d1: document.getElementById(`d1_${index}`).value || "",
+                    d2: document.getElementById(`d2_${index}`).value || "",
+                    fin: document.getElementById(`fin_${index}`).value || ""
+                };
+            });
+
+            const existingStudent = window.allStudents.find(s => s.id === window.currentStudentId) || {};
+            let gradingsMap = existingStudent.gradings || {};
+            gradingsMap[window.instructorName] = { marks: myMarksMap, total: parseFloat(totals.myTotal) };
+
+            let gradedByArray = [window.instructorName];
+            if(existingStudent.gradedBy) gradedByArray = [...new Set([...existingStudent.gradedBy, window.instructorName])];
+
+            const dataToSave = {
+                indexNo: idx, name: name || existingStudent.name || "", class: cls || existingStudent.class || "",
+                instructorName: window.instructorName, gradedBy: gradedByArray, gradings: gradingsMap,
+                grandTotal: parseFloat(totals.grandTotal), finalGrade: totals.grade, lastUpdated: Date.now()
+            };
+
+            try {
+                const docRef = doc(db, 'artifacts', definedAppId, 'public', 'data', 'students', window.currentStudentId);
+                await setDoc(docRef, dataToSave, { merge: true });
+                setStatus("Saved", "text-emerald-500", "fa-check");
+                document.getElementById('deleteBtn').style.display = 'flex';
+            } catch (error) {
+                console.error("Save Error:", error);
+                setStatus("Save Failed!", "text-red-500", "fa-triangle-exclamation");
+            }
+        }
+
+        function setStatus(text, colorClass, iconClass) {
+            const statusEl = document.getElementById('saveStatus');
+            statusEl.className = `text-xs font-bold flex items-center ${colorClass} bg-white px-2.5 py-1 rounded-md shadow-sm border border-slate-100`;
+            statusEl.innerHTML = `<i class="fa-solid ${iconClass} mr-1.5"></i> ${text}`;
+        }
+
+        // --- 5. Navigation ---
+        window.createNewStudent = () => {
+            window.currentStudentId = null;
+            document.getElementById('stuIndex').value = ''; document.getElementById('stuName').value = ''; document.getElementById('stuClass').value = '';
+            window.syllabusData.forEach((_, index) => {
+                document.getElementById(`d1_${index}`).value = ''; document.getElementById(`d2_${index}`).value = ''; document.getElementById(`fin_${index}`).value = '';
+            });
+            calculateAndUpdateTotals();
+            document.getElementById('deleteBtn').style.display = 'none';
+            setStatus("Ready", "text-blue-500", "fa-pen");
+            document.getElementById('stuIndex').focus();
+            renderStudentList(); 
+        };
+
+        window.loadStudent = (docId) => {
+            const student = window.allStudents.find(s => s.id === docId);
+            if(!student) return;
+
+            window.currentStudentId = student.id;
+            document.getElementById('stuIndex').value = student.indexNo;
+            document.getElementById('stuName').value = student.name || "";
+            document.getElementById('stuClass').value = student.class || "";
+
+            const myGrading = student.gradings ? student.gradings[window.instructorName] : null;
+            window.syllabusData.forEach((_, index) => {
+                if(myGrading && myGrading.marks && myGrading.marks[`sub_${index}`]) {
+                    const mk = myGrading.marks[`sub_${index}`];
+                    document.getElementById(`d1_${index}`).value = mk.d1; document.getElementById(`d2_${index}`).value = mk.d2; document.getElementById(`fin_${index}`).value = mk.fin;
+                } else {
+                    document.getElementById(`d1_${index}`).value = ''; document.getElementById(`d2_${index}`).value = ''; document.getElementById(`fin_${index}`).value = '';
+                }
+            });
+
+            calculateAndUpdateTotals();
+            document.getElementById('deleteBtn').style.display = 'flex';
+            setStatus("Loaded", "text-blue-500", "fa-cloud-arrow-down");
+            renderStudentList(); 
+        };
+
+        window.deleteCurrentStudent = async () => {
+            if(!window.currentStudentId || !currentUser) return;
+            if(confirm("මෙම සිසුවාගේ දත්ත සම්පූර්ණයෙන්ම මකා දැමීමට අවශ්‍යද?")) {
+                try {
+                    const docRef = doc(db, 'artifacts', definedAppId, 'public', 'data', 'students', window.currentStudentId);
+                    await deleteDoc(docRef);
+                    window.createNewStudent();
+                    setStatus("Deleted globally", "text-red-500", "fa-trash-can");
+                } catch(e) { alert("දත්ත මැකීමේදී දෝෂයක් ඇතිවිය."); }
+            }
+        };
+
+        window.filterStudents = () => { renderStudentList(); };
+
+        function renderStudentList() {
+            const listEl = document.getElementById('studentsList');
+            const search = document.getElementById('searchInput').value.toLowerCase();
+            listEl.innerHTML = '';
+
+            if(window.allStudents.length === 0) {
+                listEl.innerHTML = `<li class="text-center text-[11px] text-slate-400 mt-4 bg-white p-4 rounded-xl border border-dashed border-slate-200">දත්ත නොමැත</li>`;
+                return;
+            }
+
+            window.allStudents.forEach(stu => {
+                if(search && !stu.indexNo.toLowerCase().includes(search) && !(stu.name && stu.name.toLowerCase().includes(search))) return;
+
+                const isActive = stu.id === window.currentStudentId;
+                const li = document.createElement('li');
+                li.className = `p-3.5 rounded-2xl border cursor-pointer transition-all duration-200 relative overflow-hidden ${isActive ? 'bg-white border-blue-400 shadow-md ring-1 ring-blue-100' : 'bg-white border-slate-100 shadow-sm hover:border-blue-200 hover:shadow'}`;
+                li.onclick = () => loadStudent(stu.id);
+                
+                let dotColor = "bg-slate-300";
+                if(stu.finalGrade === "Distinction") dotColor = "bg-emerald-500";
+                else if(stu.finalGrade === "Merit") dotColor = "bg-blue-500";
+                else if(stu.finalGrade === "Pass") dotColor = "bg-amber-500";
+                
+                let myContr = stu.gradings && stu.gradings[window.instructorName] ? stu.gradings[window.instructorName].total : 0;
+                let evaluators = stu.gradedBy ? stu.gradedBy.join(', ') : 'None';
+
+                li.innerHTML += `
+                    <div class="flex flex-col gap-1.5">
+                        <div class="flex justify-between items-start w-full">
+                            <div class="font-extrabold text-slate-800 flex items-center gap-2">
+                                <span class="w-2.5 h-2.5 rounded-full ${dotColor} flex-shrink-0 shadow-inner"></span> 
+                                <span class="truncate uppercase text-[13px] tracking-wider">${stu.indexNo}</span>
+                            </div>
+                            <div class="text-[11px] font-black text-white bg-blue-600 px-2.5 py-0.5 rounded-md shadow-sm" title="Grand Total">${stu.grandTotal ? stu.grandTotal.toFixed(2) : '0.00'}</div>
+                        </div>
+                        <div class="text-[11px] text-slate-500 font-medium truncate">
+                            ${stu.name || '<span class="italic opacity-50">නමක් නැත</span>'}
+                        </div>
+                        <div class="flex justify-between items-end mt-1">
+                            <div class="text-[9px] text-slate-400 truncate w-32 uppercase tracking-wide">
+                                <i class="fa-solid fa-user-pen mr-1"></i> ${evaluators}
+                            </div>
+                            ${myContr > 0 ? `<div class="text-[9px] font-bold text-emerald-600 bg-emerald-50 px-1.5 py-0.5 rounded border border-emerald-100">MINE: ${myContr.toFixed(2)}</div>` : ''}
+                        </div>
+                    </div>
+                `;
+                listEl.appendChild(li);
+            });
+        }
+
+        // --- 6. IN-SYSTEM REPORT (DASHBOARD) ---
+        window.viewSystemReport = () => {
+            const idx = document.getElementById('stuIndex').value.trim();
+            if(!idx || !window.currentStudentId) {
+                alert("කරුණාකර පළමුව සිසුවෙකුගේ දත්ත තෝරන්න."); return;
+            }
+            const existingStudent = window.allStudents.find(s => s.id === window.currentStudentId);
+            if(!existingStudent) return;
+
+            // Generate Combined Table Rows
+            let pdfTableRows = '';
+            window.syllabusData.forEach((row, index) => {
+                let cD1 = 0, cD2 = 0, cFin = 0;
+                if(existingStudent.gradings) {
+                    Object.values(existingStudent.gradings).forEach(grading => {
+                        const mk = grading.marks[`sub_${index}`];
+                        if(mk) { cD1 += parseFloat(mk.d1)||0; cD2 += parseFloat(mk.d2)||0; cFin += parseFloat(mk.fin)||0; }
+                    });
+                }
+                if(cD1 > row.d1) cD1 = row.d1; if(cD2 > row.d2) cD2 = row.d2; if(cFin > row.fin) cFin = row.fin;
+                let rowCredits = cD1 + cD2 + cFin;
+                
+                let modCell = '';
+                if(row.modRowspan > 0) {
+                    modCell = `<td rowspan="${row.modRowspan}" class="p-3 border-b border-r border-slate-100 font-bold text-slate-500 text-[9px] uppercase tracking-widest align-top bg-slate-50/50 w-1/4">${row.mod}</td>`;
+                }
+
+                pdfTableRows += `
+                    <tr class="hover:bg-blue-50/30 transition-colors">
+                        ${modCell}
+                        <td class="p-3 border-b border-slate-100 text-xs font-medium text-slate-700">${row.sub}</td>
+                        <td class="p-3 border-b border-slate-100 text-center text-sm font-bold ${rowCredits > 0 ? 'text-blue-600 bg-blue-50/30' : 'text-slate-300'}">${rowCredits > 0 ? rowCredits : '-'}</td>
+                    </tr>
+                `;
+            });
+
+            // Instructors Breakdown Cards
+            let instructorsHTML = '';
+            if(existingStudent.gradings && Object.keys(existingStudent.gradings).length > 0) {
+                Object.keys(existingStudent.gradings).forEach(inst => {
+                    let totalGiven = existingStudent.gradings[inst].total || 0;
+                    instructorsHTML += `
+                        <div class="flex justify-between items-center p-3 rounded-xl bg-white border border-slate-200 shadow-sm mb-2.5">
+                            <div class="flex items-center gap-3">
+                                <div class="w-8 h-8 rounded-full bg-indigo-100 text-indigo-700 flex items-center justify-center font-black text-xs shadow-inner">${inst.charAt(0).toUpperCase()}</div>
+                                <span class="font-bold text-sm text-slate-700">${inst}</span>
+                            </div>
+                            <span class="font-black text-indigo-600 bg-indigo-50 px-3 py-1 rounded-lg text-sm border border-indigo-100">${totalGiven.toFixed(2)} pt</span>
+                        </div>
+                    `;
+                });
+            } else { instructorsHTML = `<p class="text-xs text-slate-400 italic text-center p-4">No grading data found.</p>`; }
+
+            // Set Data to UI
+            document.getElementById('repIndex').innerText = existingStudent.indexNo;
+            document.getElementById('repName').innerText = existingStudent.name || 'No Name Provided';
+            document.getElementById('repClass').innerText = existingStudent.class || 'N/A';
+            document.getElementById('repTotal').innerText = existingStudent.grandTotal ? existingStudent.grandTotal.toFixed(2) : '0.00';
+            document.getElementById('repGrade').innerText = existingStudent.finalGrade || 'N/A';
+            
+            // Grade Color Logic for Report
+            const bgEl = document.getElementById('repGradeBg');
+            const gradeEl = document.getElementById('repGrade');
+            bgEl.className = "col-span-1 rounded-3xl p-6 shadow-lg flex flex-col items-center justify-center text-center relative overflow-hidden border text-white";
+            
+            if(existingStudent.finalGrade === 'Distinction') { bgEl.classList.add('bg-gradient-to-br', 'from-emerald-500', 'to-teal-600', 'border-emerald-400'); gradeEl.className = "px-4 py-1.5 rounded-lg font-black text-xs tracking-widest uppercase bg-emerald-800/40 backdrop-blur text-emerald-100 border border-emerald-400/50"; }
+            else if(existingStudent.finalGrade === 'Merit') { bgEl.classList.add('bg-gradient-to-br', 'from-blue-500', 'to-indigo-600', 'border-blue-400'); gradeEl.className = "px-4 py-1.5 rounded-lg font-black text-xs tracking-widest uppercase bg-blue-800/40 backdrop-blur text-blue-100 border border-blue-400/50"; }
+            else if(existingStudent.finalGrade === 'Pass') { bgEl.classList.add('bg-gradient-to-br', 'from-amber-500', 'to-orange-500', 'border-amber-400'); gradeEl.className = "px-4 py-1.5 rounded-lg font-black text-xs tracking-widest uppercase bg-amber-800/40 backdrop-blur text-amber-100 border border-amber-400/50"; }
+            else { bgEl.classList.add('bg-gradient-to-br', 'from-slate-500', 'to-gray-600', 'border-slate-400'); gradeEl.className = "px-4 py-1.5 rounded-lg font-black text-xs tracking-widest uppercase bg-slate-800/40 backdrop-blur text-slate-100 border border-slate-400/50"; }
+
+            document.getElementById('repTableBody').innerHTML = pdfTableRows;
+            document.getElementById('repInstructors').innerHTML = instructorsHTML;
+
+            // Show Modal
+            const modal = document.getElementById('reportModal');
+            const content = document.getElementById('reportModalContent');
+            modal.classList.remove('hidden');
+            setTimeout(() => { 
+                modal.classList.add('bg-slate-900/60');
+                content.classList.add('modal-enter-active'); 
+            }, 10);
+        };
+
+        window.closeReport = () => {
+            const modal = document.getElementById('reportModal');
+            const content = document.getElementById('reportModalContent');
+            content.classList.remove('modal-enter-active');
+            modal.classList.remove('bg-slate-900/60');
+            setTimeout(() => { modal.classList.add('hidden'); }, 300);
+        };
+
+        window.onload = initSystem;
+    </script>
 </body>
 </html>
