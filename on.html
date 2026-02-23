@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="si">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MCing Course Leaderboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="bg-slate-50 p-4 md:p-10 font-sans">
+
+    <div class="max-w-6xl mx-auto">
+        <header class="text-center mb-10">
+            <h1 class="text-3xl font-black text-slate-800 uppercase tracking-tight">ශිෂ්‍ය දක්ෂතා ලේඛනය (Leaderboard)</h1>
+            <p class="text-slate-500 mt-2">Day 01 සහ Day 02 අනුව වැඩිම ලකුණු ලැබූ සිසුන්</p>
+            <div id="statusMessage" class="text-sm font-bold text-blue-500 mt-4"><i class="fa-solid fa-spinner fa-spin"></i> පද්ධතියට සම්බන්ධ වෙමින් පවතී...</div>
+        </header>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+            
+            <div class="bg-white rounded-3xl shadow-xl border border-slate-100 overflow-hidden">
+                <div class="bg-blue-600 p-5 text-white flex items-center justify-between">
+                    <h2 class="text-xl font-bold"><i class="fa-solid fa-trophy mr-2 text-yellow-400"></i> DAY 01 RANKING</h2>
+                    <span class="bg-blue-700 px-3 py-1 rounded-full text-xs font-bold uppercase">Top Performers</span>
+                </div>
+                <div class="p-4">
+                    <table class="w-full text-left border-collapse">
+                        <thead>
+                            <tr class="text-[11px] text-slate-400 uppercase border-b">
+                                <th class="p-3">Rank</th>
+                                <th class="p-3">Student / Index</th>
+                                <th class="p-3 text-right">D1 Total</th>
+                            </tr>
+                        </thead>
+                        <tbody id="day1List">
+                            <tr><td colspan="3" class="p-10 text-center text-slate-400">දත්ත පූරණය වෙමින්...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-3xl shadow-xl border border-slate-100 overflow-hidden">
+                <div class="bg-emerald-600 p-5 text-white flex items-center justify-between">
+                    <h2 class="text-xl font-bold"><i class="fa-solid fa-trophy mr-2 text-yellow-400"></i> DAY 02 RANKING</h2>
+                    <span class="bg-emerald-700 px-3 py-1 rounded-full text-xs font-bold uppercase">Top Performers</span>
+                </div>
+                <div class="p-4">
+                    <table class="w-full text-left border-collapse">
+                        <thead>
+                            <tr class="text-[11px] text-slate-400 uppercase border-b">
+                                <th class="p-3">Rank</th>
+                                <th class="p-3">Student / Index</th>
+                                <th class="p-3 text-right">D2 Total</th>
+                            </tr>
+                        </thead>
+                        <tbody id="day2List">
+                            <tr><td colspan="3" class="p-10 text-center text-slate-400">දත්ත පූරණය වෙමින්...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        // Authentication import එකතු කරන ලදී
+        import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, collection, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyDSSaxr8bD52mSY-VqYKCYiUb7yBy6zS7k",
+            authDomain: "enter-3ffe5.firebaseapp.com",
+            projectId: "enter-3ffe5",
+            storageBucket: "enter-3ffe5.firebasestorage.app",
+            messagingSenderId: "778223095637",
+            appId: "1:778223095637:web:7d5cd6148c4481fbe369dc"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+        const appId = 'kixai-4teachers';
+
+        async function initApp() {
+            try {
+                // දත්ත ලබාගැනීමට පෙර Anonymous Login වීම
+                await signInAnonymously(auth);
+                document.getElementById('statusMessage').innerHTML = `<span class="text-emerald-500"><i class="fa-solid fa-check-circle"></i> දත්ත සාර්ථකව ලබාගන්නා ලදී</span>`;
+                
+                // දත්ත ලබාගැනීම
+                onSnapshot(collection(db, 'artifacts', appId, 'public', 'data', 'students'), (snapshot) => {
+                    let studentsData = [];
+                    snapshot.forEach(doc => {
+                        const data = doc.data();
+                        let d1Total = 0;
+                        let d2Total = 0;
+
+                        if (data.gradings) {
+                            Object.values(data.gradings).forEach(g => {
+                                Object.values(g.marks).forEach(m => {
+                                    d1Total += parseFloat(m.d1 || 0);
+                                    d2Total += parseFloat(m.d2 || 0);
+                                });
+                            });
+                        }
+
+                        studentsData.push({
+                            name: data.name || "Unknown",
+                            indexNo: data.indexNo,
+                            d1: d1Total,
+                            d2: d2Total
+                        });
+                    });
+
+                    renderLeaderboards(studentsData);
+                }, (error) => {
+                    console.error("Firestore Error:", error);
+                    document.getElementById('statusMessage').innerHTML = `<span class="text-red-500"><i class="fa-solid fa-triangle-exclamation"></i> දත්ත ලබාගැනීමේ දෝෂයක්: ${error.message}</span>`;
+                });
+
+            } catch (error) {
+                console.error("Auth Error:", error);
+                document.getElementById('statusMessage').innerHTML = `<span class="text-red-500"><i class="fa-solid fa-triangle-exclamation"></i> Authentication Error: කරුණාකර Firebase Anonymous Auth සක්‍රීයදැයි පරීක්ෂා කරන්න.</span>`;
+            }
+        }
+
+        function renderLeaderboards(data) {
+            const d1Sorted = [...data].sort((a, b) => b.d1 - a.d1);
+            const d2Sorted = [...data].sort((a, b) => b.d2 - a.d2);
+
+            updateTable('day1List', d1Sorted, 'd1', 'text-blue-600');
+            updateTable('day2List', d2Sorted, 'd2', 'text-emerald-600');
+        }
+
+        function updateTable(elementId, sortedData, field, colorClass) {
+            const tbody = document.getElementById(elementId);
+            tbody.innerHTML = '';
+
+            if(sortedData.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="3" class="p-10 text-center text-slate-400">මෙතෙක් සිසුන්ගේ දත්ත ඇතුළත් කර නොමැත.</td></tr>';
+                return;
+            }
+
+            sortedData.forEach((stu, index) => {
+                const rank = index + 1;
+                const row = `
+                    <tr class="border-b border-slate-50 hover:bg-slate-50 transition-colors">
+                        <td class="p-3 font-black text-slate-400">${rank}</td>
+                        <td class="p-3">
+                            <div class="font-bold text-slate-700 uppercase text-sm">${stu.indexNo}</div>
+                            <div class="text-xs text-slate-500">${stu.name}</div>
+                        </td>
+                        <td class="p-3 text-right">
+                            <span class="font-black ${colorClass} text-lg">${stu[field].toFixed(2)}</span>
+                        </td>
+                    </tr>
+                `;
+                tbody.innerHTML += row;
+            });
+        }
+
+        // පද්ධතිය ආරම්භ කිරීම
+        initApp();
+    </script>
+</body>
+</html>
