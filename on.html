@@ -6,66 +6,101 @@
     <title>MCing Course Leaderboard</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 </head>
 <body class="bg-slate-50 p-4 md:p-10 font-sans">
 
     <div class="max-w-6xl mx-auto">
-        <header class="text-center mb-10">
+        
+        <header class="text-center mb-6">
             <h1 class="text-3xl font-black text-slate-800 uppercase tracking-tight">ශිෂ්‍ය දක්ෂතා ලේඛනය (Leaderboard)</h1>
             <p class="text-slate-500 mt-2">Day 01 සහ Day 02 අනුව වැඩිම ලකුණු ලැබූ සිසුන්</p>
-            <div id="statusMessage" class="text-sm font-bold text-blue-500 mt-4"><i class="fa-solid fa-spinner fa-spin"></i> පද්ධතියට සම්බන්ධ වෙමින් පවතී...</div>
+            <div id="statusMessage" class="text-sm font-bold text-blue-500 mt-4 mb-4"><i class="fa-solid fa-spinner fa-spin"></i> පද්ධතියට සම්බන්ධ වෙමින් පවතී...</div>
+            
+            <button onclick="downloadPDF()" class="bg-slate-800 text-white hover:bg-slate-900 px-6 py-2.5 rounded-xl font-bold transition-all text-sm inline-flex items-center justify-center gap-2 shadow-md hover:shadow-lg">
+                <i class="fa-solid fa-file-pdf text-red-400"></i> Download as PDF
+            </button>
         </header>
 
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-            
-            <div class="bg-white rounded-3xl shadow-xl border border-slate-100 overflow-hidden">
-                <div class="bg-blue-600 p-5 text-white flex items-center justify-between">
-                    <h2 class="text-xl font-bold"><i class="fa-solid fa-trophy mr-2 text-yellow-400"></i> DAY 01 RANKING</h2>
-                    <span class="bg-blue-700 px-3 py-1 rounded-full text-xs font-bold uppercase">Top Performers</span>
-                </div>
-                <div class="p-4">
-                    <table class="w-full text-left border-collapse">
-                        <thead>
-                            <tr class="text-[11px] text-slate-400 uppercase border-b">
-                                <th class="p-3">Rank</th>
-                                <th class="p-3">Student / Index</th>
-                                <th class="p-3 text-right">D1 Total</th>
-                            </tr>
-                        </thead>
-                        <tbody id="day1List">
-                            <tr><td colspan="3" class="p-10 text-center text-slate-400">දත්ත පූරණය වෙමින්...</td></tr>
-                        </tbody>
-                    </table>
-                </div>
+        <div id="reportContent" class="p-4 bg-slate-50">
+            <div class="text-center mb-8 hidden print-header">
+                <h1 class="text-2xl font-black text-slate-800 uppercase tracking-tight">MCing Course Leaderboard</h1>
+                <p class="text-slate-500">Day 01 & Day 02 Top Performers</p>
             </div>
 
-            <div class="bg-white rounded-3xl shadow-xl border border-slate-100 overflow-hidden">
-                <div class="bg-emerald-600 p-5 text-white flex items-center justify-between">
-                    <h2 class="text-xl font-bold"><i class="fa-solid fa-trophy mr-2 text-yellow-400"></i> DAY 02 RANKING</h2>
-                    <span class="bg-emerald-700 px-3 py-1 rounded-full text-xs font-bold uppercase">Top Performers</span>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <div class="bg-white rounded-3xl shadow-lg border border-slate-200 overflow-hidden">
+                    <div class="bg-blue-600 p-5 text-white flex items-center justify-between">
+                        <h2 class="text-xl font-bold"><i class="fa-solid fa-trophy mr-2 text-yellow-400"></i> DAY 01 RANKING</h2>
+                    </div>
+                    <div class="p-4">
+                        <table class="w-full text-left border-collapse">
+                            <thead>
+                                <tr class="text-[11px] text-slate-400 uppercase border-b border-slate-200">
+                                    <th class="p-3">Rank</th>
+                                    <th class="p-3">Student / Index</th>
+                                    <th class="p-3 text-right">D1 Total</th>
+                                </tr>
+                            </thead>
+                            <tbody id="day1List">
+                                <tr><td colspan="3" class="p-10 text-center text-slate-400">දත්ත පූරණය වෙමින්...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
-                <div class="p-4">
-                    <table class="w-full text-left border-collapse">
-                        <thead>
-                            <tr class="text-[11px] text-slate-400 uppercase border-b">
-                                <th class="p-3">Rank</th>
-                                <th class="p-3">Student / Index</th>
-                                <th class="p-3 text-right">D2 Total</th>
-                            </tr>
-                        </thead>
-                        <tbody id="day2List">
-                            <tr><td colspan="3" class="p-10 text-center text-slate-400">දත්ත පූරණය වෙමින්...</td></tr>
-                        </tbody>
-                    </table>
+
+                <div class="bg-white rounded-3xl shadow-lg border border-slate-200 overflow-hidden">
+                    <div class="bg-emerald-600 p-5 text-white flex items-center justify-between">
+                        <h2 class="text-xl font-bold"><i class="fa-solid fa-trophy mr-2 text-yellow-400"></i> DAY 02 RANKING</h2>
+                    </div>
+                    <div class="p-4">
+                        <table class="w-full text-left border-collapse">
+                            <thead>
+                                <tr class="text-[11px] text-slate-400 uppercase border-b border-slate-200">
+                                    <th class="p-3">Rank</th>
+                                    <th class="p-3">Student / Index</th>
+                                    <th class="p-3 text-right">D2 Total</th>
+                                </tr>
+                            </thead>
+                            <tbody id="day2List">
+                                <tr><td colspan="3" class="p-10 text-center text-slate-400">දත්ත පූරණය වෙමින්...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
-
         </div>
+
     </div>
+
+    <script>
+        window.downloadPDF = function() {
+            // PDF එකට යා යුතු කොටස තෝරාගැනීම
+            const element = document.getElementById('reportContent');
+            
+            // PDF එකේ සැඟවුණු මාතෘකාව පෙන්වීම
+            const printHeader = element.querySelector('.print-header');
+            printHeader.classList.remove('hidden');
+
+            // html2pdf සැකසුම්
+            const opt = {
+                margin:       [0.5, 0.5, 0.5, 0.5], // Top, Left, Bottom, Right
+                filename:     'MCing_Course_Leaderboard.pdf',
+                image:        { type: 'jpeg', quality: 0.98 },
+                html2canvas:  { scale: 2, useCORS: true }, // scale: 2 මගින් PDF එක පැහැදිලි කරයි
+                jsPDF:        { unit: 'in', format: 'a4', orientation: 'landscape' } // Landscape ලෙස ලබාදේ
+            };
+
+            // PDF එක ඩවුන්ලෝඩ් කිරීම
+            html2pdf().set(opt).from(element).save().then(() => {
+                // ඩවුන්ලෝඩ් වූ පසු නැවත මාතෘකාව සැඟවීම
+                printHeader.classList.add('hidden');
+            });
+        }
+    </script>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        // Authentication import එකතු කරන ලදී
         import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
         import { getFirestore, collection, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
@@ -85,11 +120,9 @@
 
         async function initApp() {
             try {
-                // දත්ත ලබාගැනීමට පෙර Anonymous Login වීම
                 await signInAnonymously(auth);
                 document.getElementById('statusMessage').innerHTML = `<span class="text-emerald-500"><i class="fa-solid fa-check-circle"></i> දත්ත සාර්ථකව ලබාගන්නා ලදී</span>`;
                 
-                // දත්ත ලබාගැනීම
                 onSnapshot(collection(db, 'artifacts', appId, 'public', 'data', 'students'), (snapshot) => {
                     let studentsData = [];
                     snapshot.forEach(doc => {
@@ -146,7 +179,7 @@
             sortedData.forEach((stu, index) => {
                 const rank = index + 1;
                 const row = `
-                    <tr class="border-b border-slate-50 hover:bg-slate-50 transition-colors">
+                    <tr class="border-b border-slate-100 hover:bg-slate-50 transition-colors">
                         <td class="p-3 font-black text-slate-400">${rank}</td>
                         <td class="p-3">
                             <div class="font-bold text-slate-700 uppercase text-sm">${stu.indexNo}</div>
@@ -161,7 +194,6 @@
             });
         }
 
-        // පද්ධතිය ආරම්භ කිරීම
         initApp();
     </script>
 </body>
