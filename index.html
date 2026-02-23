@@ -6,26 +6,25 @@
     <title>MCing Course Grading System - Pro</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <style>
         body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f8fafc; }
         .glass-panel { background: rgba(255, 255, 255, 1); box-shadow: 0 10px 40px -10px rgba(0,0,0,0.08); border: 1px solid #f1f5f9; }
-        /* Loader */
         .loader { border: 3px solid #f3f3f3; border-top: 3px solid #3b82f6; border-radius: 50%; width: 24px; height: 24px; animation: spin 1s linear infinite; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-        /* Custom Scrollbar */
         ::-webkit-scrollbar { width: 6px; height: 6px; }
         ::-webkit-scrollbar-track { background: #f1f5f9; border-radius: 10px; }
         ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
         ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
-        
-        /* Modal Animation */
         .modal-enter { opacity: 0; transform: scale(0.95); }
         .modal-enter-active { opacity: 1; transform: scale(1); transition: opacity 300ms, transform 300ms cubic-bezier(0.18, 0.89, 0.32, 1.28); }
+        
+        /* PDF සෑදීමේදී අවශ්‍ය වෙනස්කම් සඳහා */
+        .pdf-mode { height: auto !important; overflow: visible !important; }
     </style>
 </head>
 <body class="text-slate-800 h-screen overflow-hidden">
 
-    <!-- Screen 1: Instructor Login -->
     <div id="loginScreen" class="absolute inset-0 z-50 bg-slate-50 flex items-center justify-center p-4 transition-all duration-500">
         <div class="glass-panel p-10 rounded-3xl max-w-md w-full text-center">
             <div class="bg-blue-50 w-20 h-20 rounded-2xl flex items-center justify-center mx-auto mb-6 transform rotate-3">
@@ -43,10 +42,8 @@
         </div>
     </div>
 
-    <!-- Screen 2: Main Dashboard -->
     <div id="mainDashboard" class="hidden h-screen flex flex-col md:flex-row gap-4 p-4 max-w-[1600px] mx-auto bg-slate-50">
         
-        <!-- Sidebar: Student List -->
         <div class="w-full md:w-80 glass-panel rounded-2xl flex flex-col h-full shrink-0 overflow-hidden">
             <div class="p-5 bg-white border-b border-slate-100 flex justify-between items-center z-10">
                 <div>
@@ -74,11 +71,9 @@
             </div>
         </div>
 
-        <!-- Main Content: Data Entry Form -->
         <div class="w-full md:flex-1 flex flex-col h-full">
             <div class="glass-panel rounded-2xl flex-1 flex flex-col overflow-hidden relative">
                 
-                <!-- Header -->
                 <div class="p-4 md:p-5 border-b border-slate-100 flex justify-between items-center bg-white z-10 shrink-0">
                     <h2 class="font-extrabold text-xl text-slate-800 flex items-center gap-2">
                         <span class="bg-blue-50 text-blue-600 w-8 h-8 rounded-lg flex items-center justify-center"><i class="fa-solid fa-pen-to-square text-sm"></i></span>
@@ -89,9 +84,7 @@
                     </div>
                 </div>
 
-                <!-- Form Area -->
                 <div class="overflow-y-auto flex-1 p-4 md:p-6 bg-slate-50/50">
-                    <!-- Student Info -->
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6 bg-white p-4 rounded-2xl border border-slate-100 shadow-sm">
                         <div>
                             <label class="block text-[11px] font-bold text-slate-500 mb-1.5 uppercase tracking-wider">Index No <span class="text-red-500">*</span></label>
@@ -107,7 +100,6 @@
                         </div>
                     </div>
 
-                    <!-- Marks Table -->
                     <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
                         <div class="overflow-x-auto">
                             <table class="w-full text-left border-collapse">
@@ -124,14 +116,12 @@
                                     </tr>
                                 </thead>
                                 <tbody id="gradingTableBody" class="text-sm">
-                                    <!-- JS Generates this -->
-                                </tbody>
+                                    </tbody>
                             </table>
                         </div>
                     </div>
                 </div>
 
-                <!-- Bottom Bar -->
                 <div class="bg-white border-t border-slate-100 p-4 flex flex-wrap justify-between items-center z-10 shrink-0">
                     <div class="flex items-center gap-6">
                         <div class="flex flex-col">
@@ -155,7 +145,6 @@
                         <button onclick="deleteCurrentStudent()" class="flex-1 sm:flex-none text-red-500 bg-white border border-red-200 hover:bg-red-50 px-4 py-2 rounded-xl font-bold transition-all text-sm flex items-center justify-center gap-2 shadow-sm" id="deleteBtn" style="display:none;">
                             <i class="fa-solid fa-trash-can"></i> මකන්න
                         </button>
-                        <!-- NEW IN-SYSTEM REPORT BUTTON -->
                         <button onclick="viewSystemReport()" class="flex-1 sm:flex-none bg-slate-800 text-white hover:bg-slate-900 px-5 py-2 rounded-xl font-bold transition-all text-sm flex items-center justify-center gap-2 shadow-md hover:shadow-lg">
                             <i class="fa-solid fa-chart-simple text-blue-400"></i> සම්පූර්ණ වාර්තාව
                         </button>
@@ -165,12 +154,9 @@
         </div>
     </div>
 
-    <!-- IN-SYSTEM REPORT MODAL (BEAUTIFUL DASHBOARD) -->
     <div id="reportModal" class="fixed inset-0 z-[100] bg-slate-900/40 backdrop-blur-sm flex items-center justify-center p-4 hidden">
-        <!-- Modal Content Container -->
-        <div id="reportModalContent" class="bg-slate-50 w-full max-w-5xl h-[90vh] rounded-3xl shadow-2xl flex flex-col overflow-hidden border border-slate-200 modal-enter">
+        <div id="reportModalContent" class="bg-slate-50 w-full max-w-5xl h-[90vh] rounded-3xl shadow-2xl flex flex-col overflow-hidden border border-slate-200 modal-enter transition-all">
             
-            <!-- Modal Header -->
             <div class="bg-white px-6 py-4 border-b border-slate-200 flex justify-between items-center shrink-0">
                 <div class="flex items-center gap-3">
                     <div class="bg-blue-600 text-white w-10 h-10 rounded-xl flex items-center justify-center shadow-inner">
@@ -181,17 +167,19 @@
                         <p class="text-xs text-slate-500 font-medium">MCing Course Final Assessment</p>
                     </div>
                 </div>
-                <button onclick="closeReport()" class="text-slate-400 hover:text-red-500 bg-slate-100 hover:bg-red-50 w-8 h-8 rounded-full flex items-center justify-center transition-all">
-                    <i class="fa-solid fa-xmark"></i>
-                </button>
+                <div id="reportActionButtons" class="flex items-center gap-3">
+                    <button onclick="downloadReportPDF()" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-xl text-sm font-bold shadow hover:shadow-md transition-all flex items-center gap-2">
+                        <i class="fa-solid fa-download"></i> PDF
+                    </button>
+                    <button onclick="closeReport()" class="text-slate-400 hover:text-red-500 bg-slate-100 hover:bg-red-50 w-8 h-8 rounded-full flex items-center justify-center transition-all">
+                        <i class="fa-solid fa-xmark"></i>
+                    </button>
+                </div>
             </div>
 
-            <!-- Modal Scrollable Body -->
-            <div class="flex-1 overflow-y-auto p-6 md:p-8">
+            <div id="reportScrollBody" class="flex-1 overflow-y-auto p-6 md:p-8">
                 
-                <!-- Top Section: Student Info & Final Grade -->
                 <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
-                    <!-- Student Info Card -->
                     <div class="col-span-1 lg:col-span-2 bg-white rounded-2xl p-6 border border-slate-200 shadow-sm relative overflow-hidden">
                         <i class="fa-solid fa-graduation-cap absolute -right-4 -bottom-4 text-[120px] text-slate-50 rotate-[-15deg] pointer-events-none"></i>
                         <div class="relative z-10">
@@ -207,7 +195,6 @@
                         </div>
                     </div>
 
-                    <!-- Grand Total Card -->
                     <div id="repGradeBg" class="col-span-1 rounded-2xl p-6 shadow-sm flex flex-col items-center justify-center text-center relative overflow-hidden border">
                         <p class="text-[11px] font-bold uppercase tracking-widest mb-1 opacity-80">Grand Total</p>
                         <div class="text-5xl font-black mb-3">
@@ -217,10 +204,8 @@
                     </div>
                 </div>
 
-                <!-- Bottom Section: Detailed Breakdown -->
                 <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
                     
-                    <!-- Left: Marks Table -->
                     <div class="col-span-1 lg:col-span-2 bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden flex flex-col">
                         <div class="px-5 py-4 border-b border-slate-100 flex items-center gap-2 bg-slate-50/50">
                             <i class="fa-solid fa-list-check text-blue-500"></i>
@@ -236,26 +221,21 @@
                                     </tr>
                                 </thead>
                                 <tbody id="repTableBody" class="divide-y divide-slate-50 text-slate-600">
-                                    <!-- JS Generates Rows -->
-                                </tbody>
+                                    </tbody>
                             </table>
                         </div>
                     </div>
 
-                    <!-- Right: Evaluators & Legend -->
                     <div class="col-span-1 flex flex-col gap-6">
                         
-                        <!-- Evaluators List -->
                         <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-5">
                             <h4 class="font-bold text-slate-700 text-sm uppercase tracking-wide mb-4 flex items-center gap-2">
                                 <i class="fa-solid fa-users-viewfinder text-indigo-500"></i> Evaluator Contributions
                             </h4>
                             <div id="repInstructors" class="space-y-2">
-                                <!-- JS Generates Instructors -->
-                            </div>
+                                </div>
                         </div>
 
-                        <!-- Info/Legend -->
                         <div class="bg-slate-800 rounded-2xl p-5 shadow-inner">
                             <h4 class="font-bold text-slate-300 text-[10px] uppercase tracking-widest mb-3 border-b border-slate-700 pb-2">Grading Scale</h4>
                             <div class="space-y-2.5 text-xs font-medium">
@@ -272,7 +252,6 @@
         </div>
     </div>
 
-    <!-- Firebase SDK (Module) -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
@@ -655,7 +634,6 @@
             const existingStudent = window.allStudents.find(s => s.id === window.currentStudentId);
             if(!existingStudent) return;
 
-            // Generate Combined Table Rows
             let pdfTableRows = '';
             window.syllabusData.forEach((row, index) => {
                 let cD1 = 0, cD2 = 0, cFin = 0;
@@ -682,7 +660,6 @@
                 `;
             });
 
-            // Instructors Breakdown Cards
             let instructorsHTML = '';
             if(existingStudent.gradings && Object.keys(existingStudent.gradings).length > 0) {
                 Object.keys(existingStudent.gradings).forEach(inst => {
@@ -699,14 +676,12 @@
                 });
             } else { instructorsHTML = `<p class="text-xs text-slate-400 italic text-center p-4">No grading data found.</p>`; }
 
-            // Set Data to UI
             document.getElementById('repIndex').innerText = existingStudent.indexNo;
             document.getElementById('repName').innerText = existingStudent.name || 'No Name Provided';
             document.getElementById('repClass').innerText = existingStudent.class || 'N/A';
             document.getElementById('repTotal').innerText = existingStudent.grandTotal ? existingStudent.grandTotal.toFixed(2) : '0.00';
             document.getElementById('repGrade').innerText = existingStudent.finalGrade || 'N/A';
             
-            // Grade Color Logic for Report
             const bgEl = document.getElementById('repGradeBg');
             const gradeEl = document.getElementById('repGrade');
             bgEl.className = "col-span-1 rounded-3xl p-6 shadow-lg flex flex-col items-center justify-center text-center relative overflow-hidden border text-white";
@@ -719,7 +694,6 @@
             document.getElementById('repTableBody').innerHTML = pdfTableRows;
             document.getElementById('repInstructors').innerHTML = instructorsHTML;
 
-            // Show Modal
             const modal = document.getElementById('reportModal');
             const content = document.getElementById('reportModalContent');
             modal.classList.remove('hidden');
@@ -735,6 +709,37 @@
             content.classList.remove('modal-enter-active');
             modal.classList.remove('bg-slate-900/60');
             setTimeout(() => { modal.classList.add('hidden'); }, 300);
+        };
+
+        // --- 7. PDF Download Function ---
+        window.downloadReportPDF = function() {
+            const modalContent = document.getElementById('reportModalContent');
+            const actionButtons = document.getElementById('reportActionButtons');
+            const scrollBody = document.getElementById('reportScrollBody');
+            
+            const indexNo = document.getElementById('repIndex').innerText || 'Student';
+            const studentName = document.getElementById('repName').innerText || 'Report';
+
+            // PDF එක කැපී නොයාම සඳහා තාවකාලිකව Scroll මකා මුළු කොටසම පෙනෙන්නට සලස්වමු
+            modalContent.classList.add('pdf-mode');
+            scrollBody.classList.remove('overflow-y-auto');
+            actionButtons.style.display = 'none'; // Download & Close බොත්තම් PDF එකේ නොපෙන්වීම
+
+            const opt = {
+                margin:       [0.3, 0.3, 0.3, 0.3],
+                filename:     `${indexNo}_${studentName}_Evaluation.pdf`,
+                image:        { type: 'jpeg', quality: 0.98 },
+                html2canvas:  { scale: 2, useCORS: true, scrollY: 0 },
+                jsPDF:        { unit: 'in', format: 'a4', orientation: 'portrait' }
+            };
+
+            // PDF එක Save කිරීම
+            html2pdf().set(opt).from(modalContent).save().then(() => {
+                // PDF එක ඩවුන්ලෝඩ් වූ පසු නැවතත් පැරණි සැකසුම් යෙදීම
+                modalContent.classList.remove('pdf-mode');
+                scrollBody.classList.add('overflow-y-auto');
+                actionButtons.style.display = 'flex';
+            });
         };
 
         window.onload = initSystem;
