@@ -383,16 +383,19 @@
                     <td class="px-1 py-2 text-center text-slate-400 text-[10px] bg-white border-r border-slate-100">${row.d1}</td>
                     <td class="px-1 py-1 bg-blue-50/30 border-r border-slate-100">
                         <input type="number" id="d1_${index}" min="0" max="${row.d1}" step="0.25" oninput="handleRealtimeInput(${index}, 'd1')" class="w-full p-1.5 text-center bg-transparent focus:bg-white rounded border border-transparent focus:border-blue-400 focus:outline-none text-[13px] font-black text-blue-700 transition-all" ${row.d1 === 0 ? 'disabled' : ''}>
+                        <div id="sum_d1_${index}" class="text-[9px] text-center font-bold text-indigo-500 pointer-events-none pb-0.5 hidden"></div>
                     </td>
                     
                     <td class="px-1 py-2 text-center text-slate-400 text-[10px] bg-white border-r border-slate-100">${row.d2}</td>
                     <td class="px-1 py-1 bg-blue-50/30 border-r border-slate-100">
                         <input type="number" id="d2_${index}" min="0" max="${row.d2}" step="0.25" oninput="handleRealtimeInput(${index}, 'd2')" class="w-full p-1.5 text-center bg-transparent focus:bg-white rounded border border-transparent focus:border-blue-400 focus:outline-none text-[13px] font-black text-blue-700 transition-all" ${row.d2 === 0 ? 'disabled' : ''}>
+                        <div id="sum_d2_${index}" class="text-[9px] text-center font-bold text-indigo-500 pointer-events-none pb-0.5 hidden"></div>
                     </td>
                     
                     <td class="px-1 py-2 text-center text-slate-400 text-[10px] bg-white border-r border-slate-100">${row.fin}</td>
                     <td class="px-1 py-1 bg-blue-50/30">
                         <input type="number" id="fin_${index}" min="0" max="${row.fin}" step="0.25" oninput="handleRealtimeInput(${index}, 'fin')" class="w-full p-1.5 text-center bg-transparent focus:bg-white rounded border border-transparent focus:border-blue-400 focus:outline-none text-[13px] font-black text-blue-700 transition-all" ${row.fin === 0 ? 'disabled' : ''}>
+                        <div id="sum_fin_${index}" class="text-[9px] text-center font-bold text-indigo-500 pointer-events-none pb-0.5 hidden"></div>
                     </td>
                 `;
                 tbody.appendChild(tr);
@@ -444,6 +447,16 @@
                 
                 if(cD1 > row.d1) cD1 = row.d1; if(cD2 > row.d2) cD2 = row.d2; if(cFin > row.fin) cFin = row.fin;
                 grandTotal += (cD1 + cD2 + cFin);
+
+                // අලුතින් එක් කළ කොටස: ටේබල් එකේ අදාළ කොටුවට යටින් Total අගය පෙන්වීම
+                let s1 = document.getElementById(`sum_d1_${index}`);
+                if(s1) { if(cD1 > 0) { s1.innerText = `Total: ${cD1}`; s1.classList.remove('hidden'); } else { s1.classList.add('hidden'); } }
+                
+                let s2 = document.getElementById(`sum_d2_${index}`);
+                if(s2) { if(cD2 > 0) { s2.innerText = `Total: ${cD2}`; s2.classList.remove('hidden'); } else { s2.classList.add('hidden'); } }
+                
+                let sfin = document.getElementById(`sum_fin_${index}`);
+                if(sfin) { if(cFin > 0) { sfin.innerText = `Total: ${cFin}`; sfin.classList.remove('hidden'); } else { sfin.classList.add('hidden'); } }
             });
 
             document.getElementById('grandTotalDisplay').innerText = grandTotal.toFixed(2);
